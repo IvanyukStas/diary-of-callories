@@ -15,6 +15,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer db.CLose()
 	// user := cdb.User{Name: "stas", Registered: time.Now().Format("02-01-2006"), Age: 30}
 	// err = db.AddUser(user)
 	// if err != nil{

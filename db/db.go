@@ -65,6 +65,7 @@ type DB struct {
 	sql    *sql.DB
 	stmt   *sql.Stmt
 	buffer []User
+	
 }
 
 func NewDB(dbFile string) (*DB, error) {
@@ -83,6 +84,9 @@ func NewDB(dbFile string) (*DB, error) {
 	return &db, nil
 }
 
+func (db *DB)CLose(){
+	db.sql.Close()
+}
 var insertUserSQL = `INSERT INTO users (name, registered, age, weight, height) VALUES (?, ?, ?, ?, ?)`
 
 func (db *DB) AddUser(user User) error {
@@ -108,12 +112,12 @@ func (db *DB) AddUser(user User) error {
 }
 
 func (db *DB) GetUser() (*[]User, error) {
-	tx, err := db.sql.Begin()
-	if err != nil {
-		return nil, err
-	}
+	// tx, err := db.sql.Begin()
+	// if err != nil {
+	// 	return nil, err
+	// }
 	getUserSQL := "SELECT id, name FROM users"
-	rows, err := tx.Query(getUserSQL)
+	rows, err := db.sql.Query(getUserSQL)
 	if err != nil{
 		return nil, err
 	}
@@ -125,6 +129,7 @@ func (db *DB) GetUser() (*[]User, error) {
 	}
 	return &users, nil
 	}
+
 
 
 		
