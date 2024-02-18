@@ -2,7 +2,6 @@ package db
 
 import (
 	"database/sql"
-	"fmt"
 	_ "github.com/mattn/go-sqlite3"
 	"log"
 	"time"
@@ -15,8 +14,9 @@ func check_err(err error) {
 }
 
 type User struct {
+	Id int
 	Name       string
-	Registered time.Time
+	Registered string
 	Age        int
 	Weight     int
 	Height     int
@@ -35,7 +35,6 @@ type Meal struct {
 	DiaryId  Diary
 }
 
-// created TIMESTAMP,
 var schemaDB = `CREATE TABLE IF NOT EXISTS users(
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	name VARCHAR(32),
@@ -70,7 +69,6 @@ type DB struct {
 
 func NewDB(dbFile string) (*DB, error) {
 	sqlDB, err := sql.Open("sqlite3", dbFile)
-	fmt.Println("1111111111")
 
 	check_err(err)
 	if _, err := sqlDB.Exec(schemaDB); err != nil {
@@ -85,11 +83,7 @@ func NewDB(dbFile string) (*DB, error) {
 	return &db, nil
 }
 
-var insertUserSQL = `INSERT INTO users (
-	name, registered, age, weight, height
-	 ) VALUES (
-	     ?, ?, ?, ?, ?
-	 )`
+var insertUserSQL = `INSERT INTO users (name, registered, age, weight, height) VALUES (?, ?, ?, ?, ?)`
 
 func (db *DB) AddUser(user User) error {
 	tx, err := db.sql.Begin()
@@ -101,16 +95,38 @@ func (db *DB) AddUser(user User) error {
 	if err != nil {
 		return err
 	}
+	defer stmt.Close()
 
-	ok, err := stmt.Exec(user.Name, user.Registered, user.Age, user.Weight, user.Height)
+	_, err = stmt.Exec(user.Name, user.Registered, user.Age, user.Weight, user.Height)
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
 	tx.Commit()
 
-	fmt.Println(ok, "1111111111111111")
-
 	return nil
-
 }
+
+func (db *DB) GetUser() (*[]User, error) {
+	tx, err := db.sql.Begin()
+	if err != nil {
+		return nil, err
+	}
+	getUserSQL := "SELECT id, name FROM users"
+	rows, err := tx.Query(getUserSQL)
+	if err != nil{
+		return nil, err
+	}
+	var users []User
+	user := User{}
+	for rows.Next(){
+		rows.Scan(&user.Id, &user.Name)
+		users = append(users, user)
+	}
+	return &users, nil
+	}
+
+
+		
+
+

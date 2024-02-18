@@ -15,14 +15,22 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	user := cdb.User{Name: "stas", Registered: time.Now(), Age: 30}
-	err = db.AddUser(user)
-	if err != nil{
+	// user := cdb.User{Name: "stas", Registered: time.Now().Format("02-01-2006"), Age: 30}
+	// err = db.AddUser(user)
+	// if err != nil{
+	// 	log.Fatal(err)
+	// }
+	us, err:= db.GetUser()
+	if err !=nil{
 		log.Fatal(err)
 	}
+	for _, user := range *us{
+		fmt.Println(user.Id, user.Name)
+	}
+	
 
 	fmt.Println("Привет, давай считать каллории вместе!")
-	fmt.Printf("Сегодня %02d-%02d-%d\n", time.Now().Day(), time.Now().Month(), time.Now().Year())
+	fmt.Printf("Сегодня %v\n", time.Now().Format("02-01-2006"))
 	fmt.Println("Выбирите какой прием пищи записываем завтрак, обед или ужин")
 
 	for {
