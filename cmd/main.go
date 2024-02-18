@@ -1,36 +1,39 @@
 package main
 
 import (
-	"docc/logger"
+	"docc/src/cli"
+	"fmt"
 	"log"
 	"time"
+	"docc/db"
+
 )
 
 func main() {
-	if err := run(); err != nil {
+	dbFile := "db-test"
+	_, err := db.NewDB(dbFile)
+	if err != nil {
 		log.Fatal(err)
+	}
+
+	fmt.Println("Привет, давай считать каллории вместе!")
+	fmt.Printf("Сегодня %02d-%02d-%d\n", time.Now().Day(), time.Now().Month(), time.Now().Year())
+	fmt.Println("Выбирите какой прием пищи записываем завтрак, обед или ужин")
+
+	for {
+		r := cli.ReadFromSttin()
+		if r == "q" {
+			break
+		}
+		fmt.Println(r)
 	}
 
 }
 
-func run() error {
-	log.Println("Start program!")
-	logg := logger.Loging1{}
-	logg.New()
-	logg.I.Println("fdfsdfg")
+// func run() error {
+// 	log.Println("Start program!")
 
-	// logdir := filepath.Join("../", "log", "1.log")
-	// f, err := os.OpenFile(logdir,
-	// 	os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	// if err != nil {
-	// 	log.Println(err)
-	// }
-	// defer f.Close()
-
-	// logger := log.New(f, "префикс: ", log.LstdFlags)
-	// logger.Println("текст для добавления")
-	// logger.Println("еще текст для добавления")
-	time.Sleep(5 * time.Second)
-	defer log.Println("program is closed!")
-	return nil
-}
+// 	time.Sleep(5 * time.Second)
+// 	defer log.Println("program is closed!")
+// 	return nil
+// }

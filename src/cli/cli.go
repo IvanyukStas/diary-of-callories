@@ -1,11 +1,11 @@
-package main
+package cli
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 )
 
+// Read input information from STDIN
 func ReadFromSttin() string {
 	reader := bufio.NewReader(os.Stdin)
 	scanner := bufio.NewScanner(reader)
@@ -14,16 +14,4 @@ func ReadFromSttin() string {
 
 	}
 	return ""
-}
-
-
-func main() {
-	for  {
-
-	 r := ReadFromSttin()
-	 if r == "q"{
-		break
-	 }
-	 fmt.Println(r)
-	}
 }
