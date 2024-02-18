@@ -3,9 +3,9 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	_ "github.com/mattn/go-sqlite3"
 	"log"
 	"time"
-	_ "github.com/mattn/go-sqlite3"
 )
 
 func check_err(err error) {
@@ -16,10 +16,10 @@ func check_err(err error) {
 
 type User struct {
 	Name       string
-	registered time.Time
-	age        int
-	wieght     int
-	height     int
+	Registered time.Time
+	Age        int
+	Weight     int
+	Height     int
 }
 
 type Diary struct {
@@ -34,11 +34,12 @@ type Meal struct {
 	created  time.Time
 	DiaryId  Diary
 }
+
 // created TIMESTAMP,
 var schemaDB = `CREATE TABLE IF NOT EXISTS users(
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	name VARCHAR(32),
-	
+	registered TETX,
 	age INTEGER,
 	weight INTEGER,
 	height INTEGER
@@ -49,6 +50,15 @@ CREATE TABLE IF NOT EXISTS diaries(
 	created TIMESTAMP,
 	user_id INTEGER,
 	FOREIGN KEY (user_id)  REFERENCES users (id)
+	);
+
+CREATE TABLE IF NOT EXISTS meals(
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	meal_time TEXT,
+	meal_ccal INTEGER,
+	meal_name TEXT,
+	diary_id INTEGET,
+	FOREIGN KEY (diary_id)  REFERENCES diaries (id)
 
 );`
 
@@ -67,25 +77,40 @@ func NewDB(dbFile string) (*DB, error) {
 		return nil, err
 	}
 
-	insertSQL := `
-	INSERT INTO users (
-	name, age, weight, height
-	 ) VALUES (
-	     ?, ?, ?, ?
-	 )`
-
-	stmt, err := sqlDB.Prepare(insertSQL)
-	if err != nil {
-		return nil, err
-	}
-
-	var db DB
-
-	db = DB{
+	db := DB{
 		sql:    sqlDB,
-		stmt:   stmt,
 		buffer: make([]User, 0, 10),
 	}
 
 	return &db, nil
+}
+
+var insertUserSQL = `INSERT INTO users (
+	name, registered, age, weight, height
+	 ) VALUES (
+	     ?, ?, ?, ?, ?
+	 )`
+
+func (db *DB) AddUser(user User) error {
+	tx, err := db.sql.Begin()
+	if err != nil {
+		return err
+	}
+
+	stmt, err := tx.Prepare(insertUserSQL)
+	if err != nil {
+		return err
+	}
+
+	ok, err := stmt.Exec(user.Name, user.Registered, user.Age, user.Weight, user.Height)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	tx.Commit()
+
+	fmt.Println(ok, "1111111111111111")
+
+	return nil
+
 }

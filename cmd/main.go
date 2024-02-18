@@ -5,14 +5,19 @@ import (
 	"fmt"
 	"log"
 	"time"
-	"docc/db"
+	cdb "docc/db"
 
 )
 
 func main() {
-	dbFile := "db-test"
-	_, err := db.NewDB(dbFile)
+	dbFile := "./db-test.db"
+	db, err := cdb.NewDB(dbFile)
 	if err != nil {
+		log.Fatal(err)
+	}
+	user := cdb.User{Name: "stas", Registered: time.Now(), Age: 30}
+	err = db.AddUser(user)
+	if err != nil{
 		log.Fatal(err)
 	}
 
