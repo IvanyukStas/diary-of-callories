@@ -3,7 +3,6 @@ package db
 import (
 	"database/sql"
 	"log"
-	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -23,17 +22,13 @@ type User struct {
 	Height     int
 }
 
-type Diary struct {
-	Created time.Time
-	UserId  User
-}
 
 type Meal struct {
 	MealTime string
-	MealName []string
+	MealName string
 	MealCcal int
-	created  time.Time
-	DiaryId  Diary
+	MealDate string
+	UserId  int
 }
 
 var schemaDB = `CREATE TABLE IF NOT EXISTS users(
@@ -43,22 +38,18 @@ var schemaDB = `CREATE TABLE IF NOT EXISTS users(
 	age INTEGER,
 	weight INTEGER,
 	height INTEGER
-
-);
-CREATE TABLE IF NOT EXISTS diaries(
-	id INTEGER PRIMARY KEY AUTOINCREMENT,
-	created TIMESTAMP,
-	user_id INTEGER,
-	FOREIGN KEY (user_id)  REFERENCES users (id)
 	);
+
+	
 
 CREATE TABLE IF NOT EXISTS meals(
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	meal_time TEXT,
 	meal_ccal INTEGER,
 	meal_name TEXT,
-	diary_id INTEGET,
-	FOREIGN KEY (diary_id)  REFERENCES diaries (id)
+	meal_date TEXT,
+	user_id INTEGET,
+	FOREIGN KEY (user_id)  REFERENCES users (id)
 
 );`
 
@@ -131,3 +122,27 @@ func (db *DB) GetUsers() (*[]User, error) {
 	}
 	return &users, nil
 }
+
+
+func (db *DB)AddMeal(meal Meal) error{
+	tx, err := db.sql.Begin()
+	if err != nil {
+		return err
+	}
+
+var insertMealSQL = "INSERT INTO meals (meal_time, meal_ccal, meal_name,meal_date, user_id) VALUES (?,?,?,?,?)"
+	stmt, err := tx.Prepare(insertMealSQL)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(meal.MealTime, meal.MealCcal, meal.MealName, meal.MealDate, meal.UserId)
+	if err != nil{
+		tx.Rollback()
+		return err
+	}
+	tx.Commit()
+	return nil
+}
+
