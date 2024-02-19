@@ -14,10 +14,11 @@ var users *[]cdb.User
 var db *cdb.DB
 
 func main() {
-	_, err := utilsfunc.AddMealToSlice("гречка 100, uhtxrf 200")
+	slcmeals, err := utilsfunc.AddMealToSlice("гречка 100, uhtxrf 200, dfdsfds sdffds, fdsfsfsd 3333")
 	if err != nil {
 		fmt.Println(err)
 	}
+	fmt.Println(slcmeals)
 
 	// var user cdb.User
 	// user.Id = 1

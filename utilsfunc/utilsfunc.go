@@ -4,6 +4,7 @@ import (
 	"docc/db"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -26,15 +27,20 @@ func AddMealToSlice(r string)(slcmeals []db.Meal, err error){
 		return nil, errors.New("пустая строка! паполните строку!")
 	}
 	slcstr := strings.Split(r, ",")
-	for strMeal
-	 := slcstr{
-
-		// slcmeals = append(slcmeals, db.Meal{MealTime: CheckMealTime(), })
-
+	for _, strMeal := range slcstr{
+		slcMeal := strings.Split(strings.TrimSpace(strMeal), " ")
+		ccalInt, err := strconv.Atoi(slcMeal[1])
+		if err != nil {
+			fmt.Println("Не смог записать ", slcMeal[0])
+			fmt.Println("После блюда "+ slcMeal[0] + " укажите граммовку цифрами")
+		}
+		slcmeals = append(slcmeals, db.Meal{MealTime: CheckMealTime(), 
+											MealName: slcMeal[0], 
+											MealCcal: ccalInt, 
+											MealDate: time.Now().Format("02-01-2006") })
 	}
 	
 
-	fmt.Println(slcstr)
-	return nil, nil
+	return slcmeals, nil
 
 }
