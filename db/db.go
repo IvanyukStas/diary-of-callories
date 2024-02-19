@@ -2,9 +2,10 @@ package db
 
 import (
 	"database/sql"
-	_ "github.com/mattn/go-sqlite3"
 	"log"
 	"time"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func check_err(err error) {
@@ -14,7 +15,7 @@ func check_err(err error) {
 }
 
 type User struct {
-	Id int
+	Id         int
 	Name       string
 	Registered string
 	Age        int
@@ -65,7 +66,6 @@ type DB struct {
 	sql    *sql.DB
 	stmt   *sql.Stmt
 	buffer []User
-	
 }
 
 func NewDB(dbFile string) (*DB, error) {
@@ -84,9 +84,10 @@ func NewDB(dbFile string) (*DB, error) {
 	return &db, nil
 }
 
-func (db *DB)CLose(){
+func (db *DB) CLose() {
 	db.sql.Close()
 }
+
 var insertUserSQL = `INSERT INTO users (name, registered, age, weight, height) VALUES (?, ?, ?, ?, ?)`
 
 func (db *DB) AddUser(user User) error {
@@ -111,27 +112,22 @@ func (db *DB) AddUser(user User) error {
 	return nil
 }
 
-func (db *DB) GetUser() (*[]User, error) {
+func (db *DB) GetUsers() (*[]User, error) {
 	// tx, err := db.sql.Begin()
 	// if err != nil {
 	// 	return nil, err
 	// }
-	getUserSQL := "SELECT id, name FROM users"
+	getUserSQL := "SELECT id, name FROM users;"
 	rows, err := db.sql.Query(getUserSQL)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 	var users []User
 	user := User{}
-	for rows.Next(){
+	for rows.Next() {
 		rows.Scan(&user.Id, &user.Name)
 		users = append(users, user)
 	}
 	return &users, nil
-	}
-
-
-
-		
-
-
+}
